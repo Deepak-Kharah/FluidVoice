@@ -1555,10 +1555,15 @@ final class ASRService: ObservableObject {
         self.lastBoostHitTerm = nil
         self.wordBoostStatusText = "Word boost: off"
 
-        // Reset cached providers to force re-initialization with new settings
+        // Reset cached providers to force re-initialization with new settings.
+        // nemotronProviders belongs here too (as in shutdown() and
+        // retireDictationASRResourcesForMeeting()): a prepared NemotronProvider
+        // retains an offline encoder MLModel, and CoreML's MPSGraph backend holds
+        // ~2.56 GiB of unlinked $TMPDIR mmaps for that model's lifetime.
         self.fluidAudioProvider = nil
         self.parakeetRealtimeProvider = nil
         self.externalCoreMLProvider = nil
+        self.nemotronProviders.removeAll()
         self.whisperProvider = nil
         self.appleSpeechProvider = nil
         self._appleSpeechAnalyzerProvider = nil
